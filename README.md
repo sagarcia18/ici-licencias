@@ -13,8 +13,9 @@ license data, so it is safe to be public.
    `dotnet run --project ICI_LicenseTool -- fingerprint <file.lic>`
    (`sign` also prints it when the license is issued.)
 2. Add it as a new line to `revoked.txt`, with a `#` comment saying who and why, and push.
-3. The **Sign revocation list** Action re-signs `revoked.json` within a minute. Users pick it up
-   the next time Revit starts online.
+3. The **Sign revocation list** Action re-signs `revoked.json` within a minute. The add-in
+   downloads the list on every Revit start, so a user is blocked the next time they start Revit
+   online (GitHub may serve the old file for a few minutes).
 
 ## How it stays valid
 
@@ -23,9 +24,11 @@ revocation can't be replayed forever. The Action re-signs it every Monday; if it
 **every user is locked out once the list expires**. Check the Actions tab if in doubt, or run the
 workflow by hand (Actions > Sign revocation list > Run workflow).
 
-GitHub disables scheduled workflows in a public repo after 60 days without activity. The weekly
-commit is meant to count as activity, but if GitHub ever shows the workflow as disabled,
-re-enable it from the Actions tab.
+GitHub disables scheduled workflows in a public repo after 60 days without activity, and the
+Action's own commits may not count. Its last step re-enables the workflow through the API to keep
+the schedule alive; GitHub doesn't document that this resets the 60-day count, so as a safety net
+the add-in warns users when the list they have is close to expiring. If GitHub ever shows the
+workflow as disabled, re-enable it from the Actions tab and run it by hand.
 
 ## Setup (once)
 

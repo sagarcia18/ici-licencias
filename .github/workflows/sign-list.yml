@@ -23,6 +23,7 @@ jobs:
     environment: licencias
     permissions:
       contents: write
+      actions: write   # lets the job re-enable its own workflow (last step)
     steps:
       - uses: actions/checkout@v4
 
@@ -40,3 +41,11 @@ jobs:
           git add revoked.json
           git diff --cached --quiet || git commit -m "Firmar lista de revocación"
           git push
+
+      # Scheduled workflows in public repos are disabled after 60 days without repo activity,
+      # and commits made with GITHUB_TOKEN may not count. Re-enabling through the API keeps the
+      # schedule alive with the built-in token, no personal access token needed.
+      - name: Keep schedule enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/sign-list.yml/enable"
