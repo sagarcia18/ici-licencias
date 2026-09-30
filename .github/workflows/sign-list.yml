@@ -1,0 +1,42 @@
+name: Sign revocation list
+
+on:
+  # Re-sign before revoked.json's validUntil (14 days), even when nothing was revoked:
+  # an expired list locks every user out.
+  schedule:
+    - cron: '0 6 * * 1'   # Mondays 06:00 UTC
+  push:
+    branches: [main]
+    paths: ['revoked.txt', 'scripts/sign-list.ps1']
+  workflow_dispatch:
+
+# Two runs committing at once would conflict; the later one simply waits.
+concurrency:
+  group: sign-list
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    # The list key is an environment secret: only jobs that name this environment can read it,
+    # and the environment is limited to main, so no other branch or fork can reach the key.
+    environment: licencias
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sign revoked.txt into revoked.json
+        shell: pwsh
+        env:
+          LIST_PRIVATE_KEY: ${{ secrets.LIST_PRIVATE_KEY }}
+        run: ./scripts/sign-list.ps1
+
+      # Pushes made with GITHUB_TOKEN don't trigger workflows, so this can't loop.
+      - name: Commit revoked.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add revoked.json
+          git diff --cached --quiet || git commit -m "Firmar lista de revocación"
+          git push

@@ -1,0 +1,5 @@
+# Revoked ICI_capacitacion licenses: one fingerprint per line.
+# Get a license's fingerprint with:  dotnet run --project ICI_LicenseTool -- fingerprint <file.lic>
+# Anything after "#" is a comment; use it to note who and when, e.g.
+#   0123...cdef  # Juan Pérez, left the company 2026-10-01
+# Pushing a change here re-signs revoked.json automatically.
