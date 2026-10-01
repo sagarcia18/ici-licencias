@@ -3,3 +3,4 @@
 # Anything after "#" is a comment; use it to note who and when, e.g.
 #   0123...cdef  # Juan Pérez, left the company 2026-10-01
 # Pushing a change here re-signs revoked.json automatically.
+<br>eac560f9bda894c0d4ff0676da1c98aa5fe6aab6ec4a1dc2c9904106c4554f08 # prueba<br>
